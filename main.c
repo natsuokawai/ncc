@@ -231,6 +231,52 @@ static Node *primary(Token **rest, Token *tok) {
     error_tok(tok, "expected an expression");
 }
 
+//
+// Code generator
+//
+
+static int depth;
+
+static void push(void) {
+    printf("  push %%rax\n");
+    depth++;
+}
+
+static void pop(char *arg) {
+    printf("  pop  %s\n", arg);
+    depth--;
+}
+
+static void gen_expr(Node *node) {
+    if (node->kind == ND_NUM) {
+        printf("  mov $%d, %%rax\n", node->val);
+        return;
+    }
+
+    gen_expr(node->rhs);
+    push();
+    gen_expr(node->lhs);
+    pop("%rdi");
+
+    switch (node->kind) {
+    case ND_ADD:
+        printf("  add %%rdi, %%rax\n");
+        return;
+    case ND_SUB:
+        printf("  sub %%rdi, %%rax\n");
+        return;
+    case ND_MUL:
+        printf("  imul %%rdi, %%rax\n");
+        return;
+    case ND_DIV:
+        printf("  cqo\n");
+        printf("  idiv %%rdi\n");
+        return;
+    }
+
+    error("invalid expression");
+}
+
 int main(int argc, char **argv) {
     if (argc != 2) {
         error("%s: invalid number of arguments\n", argv[0]);
@@ -238,27 +284,19 @@ int main(int argc, char **argv) {
 
     current_input = argv[1];
     Token *tok = tokenize();
+    Node *node = expr(&tok, tok);
+
+    if (tok->kind != TK_EOF) {
+        error_tok(tok, "extra token");
+    }
 
     printf("  .global main\n");
     printf("main:\n");
 
-    // The first token must be a numer
-    printf("  mov $%d, %%rax\n", get_number(tok));
-    tok = tok->next;
-
-    // followed by either `+ <number>` or `- <number>`
-    while (tok->kind != TK_EOF) {
-        if (equal(tok, "+")) {
-            printf("  add $%d, %%rax\n", get_number(tok->next));
-            tok = tok->next->next;
-            continue;
-        }
-
-        tok = skip(tok, "-");
-        printf("  sub $%d, %%rax\n", get_number(tok));
-        tok = tok->next;
-    }
-
+    // Traverse the AST to emit assembly
+    gen_expr(node);
     printf("  ret\n");
+
+    assert(depth == 0);
     return 0;
 }
