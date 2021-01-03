@@ -139,6 +139,7 @@ typedef enum {
     ND_SUB, // '-'
     ND_MUL, // '*'
     ND_DIV, // '/'
+    ND_NEG, // unary -
     ND_NUM, // Integer
 } NodeKind;
 
@@ -161,6 +162,12 @@ static Node *new_binary(NodeKind kind, Node *lhs, Node *rhs) {
     Node *node = new_node(kind);
     node->lhs = lhs;
     node->rhs = rhs;
+    return node;
+}
+
+static Node *new_unary(NodeKind kind, Node *expr) {
+    Node *node = new_node(kind);
+    node->lhs = expr;
     return node;
 }
 
@@ -222,7 +229,7 @@ static Node *unary(Token **rest, Token *tok) {
     }
 
     if (equal(tok, "-")) {
-        return new_binary(ND_SUB, new_num(0), unary(rest, tok->next));
+        return new_unary(ND_NEG, unary(rest, tok->next));
     }
 
     return primary(rest, tok);
@@ -262,8 +269,13 @@ static void pop(char *arg) {
 }
 
 static void gen_expr(Node *node) {
-    if (node->kind == ND_NUM) {
+    switch (node->kind) {
+    case ND_NUM:
         printf("  mov $%d, %%rax\n", node->val);
+        return;
+    case ND_NEG:
+        gen_expr(node->lhs);
+        printf("  neg %%rax\n");
         return;
     }
 
