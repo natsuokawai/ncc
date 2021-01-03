@@ -26,5 +26,6 @@ assert 4 '(3+5)/2'
 assert 10 '-10+20'
 assert 10 '- -10'
 assert 10 '- - +10'
+assert '1' '1 < 3 == 3 >= 0'
 
 echo OK
