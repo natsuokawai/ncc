@@ -114,6 +114,13 @@ static Token *tokenize(void) {
             continue;
         }
 
+        if (!strncmp(p, ">=", 2) || !strncmp(p, "<=", 2)
+           || !strncmp(p, "==", 2) || !strncmp(p, "==", 2)) {
+            cur = cur->next = new_token(TK_PUNCT, p, p + 2);
+            p += 2;
+            continue;
+        }
+
         // Punctuator
         if (ispunct(*p)) {
             // cur->next = new_token(TK_PUNCT, p, p + 1);
@@ -139,6 +146,10 @@ typedef enum {
     ND_SUB, // '-'
     ND_MUL, // '*'
     ND_DIV, // '/'
+    ND_EQ,  // '=='
+    ND_NE,  // '!='
+    ND_LT,  // '<'
+    ND_LE,  // '<='
     ND_NEG, // unary -
     ND_NUM, // Integer
 } NodeKind;
