@@ -115,7 +115,7 @@ static Token *tokenize(void) {
         }
 
         if (!strncmp(p, ">=", 2) || !strncmp(p, "<=", 2)
-           || !strncmp(p, "==", 2) || !strncmp(p, "==", 2)) {
+           || !strncmp(p, "==", 2) || !strncmp(p, "!=", 2)) {
             cur = cur->next = new_token(TK_PUNCT, p, p + 2);
             p += 2;
             continue;
@@ -250,6 +250,7 @@ static Node *relation(Token **rest, Token *tok) {
         return node;
     }
 }
+
 // add = mul ("+" mul | "-" mul)*
 static Node *add(Token **rest, Token *tok) {
     Node *node = mul(&tok, tok);
@@ -365,6 +366,26 @@ static void gen_expr(Node *node) {
     case ND_DIV:
         printf("  cqo\n");
         printf("  idiv %%rdi\n");
+        return;
+    case ND_EQ:
+        printf("  cmp %%rdi, %%rax\n");
+        printf("  sete %%al\n");
+        printf("  movzb %%al, %%rax\n");
+        return;
+    case ND_NE:
+        printf("  cmp %%rdi, %%rax\n");
+        printf("  setne %%al\n");
+        printf("  movzb %%al, %%rax\n");
+        return;
+    case ND_LT:
+        printf("  cmp %%rdi, %%rax\n");
+        printf("  setl %%al\n");
+        printf("  movzb %%al, %%rax\n");
+        return;
+    case ND_LE:
+        printf("  cmp %%rdi, %%rax\n");
+        printf("  setle %%al\n");
+        printf("  movzb %%al, %%rax\n");
         return;
     }
 
