@@ -91,6 +91,19 @@ static Token *new_token(TokenKind kind, char *start, char *end) {
     return tok;
 }
 
+static bool startswith(char *p, char *q) {
+    return strncmp(p, q, strlen(q)) == 0;
+}
+
+static int read_punct(char *p) {
+    if (startswith(p, "==") || startswith(p, "!=") ||
+        startswith(p, "<=") || startswith(p, ">=")) {
+        return 2;
+    }
+
+    return ispunct(*p) ? 1 : 0;
+}
+
 static Token *tokenize(void) {
     char *p = current_input;
    Token head = {};
@@ -114,19 +127,13 @@ static Token *tokenize(void) {
             continue;
         }
 
-        if (!strncmp(p, ">=", 2) || !strncmp(p, "<=", 2)
-           || !strncmp(p, "==", 2) || !strncmp(p, "!=", 2)) {
-            cur = cur->next = new_token(TK_PUNCT, p, p + 2);
-            p += 2;
-            continue;
-        }
-
         // Punctuator
-        if (ispunct(*p)) {
+        int punct_len = read_punct(p);
+        if (punct_len) {
             // cur->next = new_token(TK_PUNCT, p, p + 1);
             // cur = cur->next;
-            cur = cur->next = new_token(TK_PUNCT, p, p + 1);
-            p++;
+            cur = cur->next = new_token(TK_PUNCT, p, p + punct_len);
+            p += punct_len;
             continue;
         }
 
