@@ -11,6 +11,7 @@
 //
 
 typedef enum {
+    TK_IDENT, // Identifiers
     TK_PUNCT, // Punctuators
     TK_NUM,   // Numeric literals
     TK_EOF,   // End-of-file markers
