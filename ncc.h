@@ -49,8 +49,10 @@ typedef enum {
     ND_NE,        // '!='
     ND_LT,        // '<'
     ND_LE,        // '<='
+    ND_ASSIGN,    // '='
     ND_NEG,       // unary -
-		ND_EXPR_STMT, // Expression statement
+    ND_EXPR_STMT, // Expression statement
+    ND_VAR,       // Variable
     ND_NUM,       // Integer
 } NodeKind;
 
@@ -58,10 +60,11 @@ typedef enum {
 typedef struct Node Node;
 struct Node {
     NodeKind kind; // Node kind
-		Node *next;    // Next node
+    Node *next;    // Next node
     Node *lhs;     // Left-hand side
     Node *rhs;     // Right-hand side
-    int val;       // Userd if kind == ND_NUM
+    char name;     // Used if kind == ND_VAR
+    int val;       // Used if kind == ND_NUM
 };
 
 Node *parse(Token **rest, Token *tok);
