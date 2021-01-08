@@ -103,9 +103,12 @@ Token *tokenize(char *input) {
         }
 
         // Identifier
-        if ('a' <= *p && *p <= 'z') {
-            cur = cur->next = new_token(TK_IDENT, p, p + 1);
-            p++;
+        if (('a' <= *p && *p <= 'z') || ('A' <= *p && *p <= 'Z')) {
+            char *start = p;
+            do {
+                p++;
+            } while (('a' <= *p && *p <= 'z') || ('A' <= *p && *p <= 'Z') || ('0' <= *p && *p <= '9'));
+            cur = cur->next = new_token(TK_IDENT, start, p);
             continue;
         }
 
