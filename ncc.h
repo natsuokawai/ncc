@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include <assert.h>
 #include <ctype.h>
 #include <stdarg.h>
@@ -10,6 +11,7 @@
 // tokenize.c
 //
 
+// Token
 typedef enum {
     TK_IDENT, // Identifiers
     TK_PUNCT, // Punctuators
@@ -40,6 +42,15 @@ Token *tokenize(char *input);
 // parse.c
 //
 
+// Local variable
+typedef struct Obj Obj;
+struct Obj {
+    Obj *next;
+    char *name; // Variable name
+    int offset; // Offset from RBP
+};
+
+// AST node
 typedef enum {
     ND_ADD,       // '+'
     ND_SUB,       // '-'
@@ -63,14 +74,23 @@ struct Node {
     Node *next;    // Next node
     Node *lhs;     // Left-hand side
     Node *rhs;     // Right-hand side
-    char name;     // Used if kind == ND_VAR
+    Obj *var;      // Used if kind == ND_VAR
     int val;       // Used if kind == ND_NUM
 };
 
-Node *parse(Token **rest, Token *tok);
+// Function
+typedef struct Function Function;
+struct Function {
+    Node *body;
+    Obj *locals;
+    int stack_size;
+};
+
+
+Function *parse(Token **rest, Token *tok);
 
 //
 // codegen.c
 //
 
-void codegen(Node *node);
+void codegen(Function *prog);
