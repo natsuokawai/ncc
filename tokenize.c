@@ -102,6 +102,13 @@ Token *tokenize(char *input) {
             continue;
         }
 
+        // Return
+        if (!strncmp(p, "return", 6) && (!isalnum(p[6]) && p[6] != '_')) {
+            cur = cur->next = new_token(TK_RETURN, p, p + 6);
+            p += 6;
+            continue;
+        }
+
         // Identifier
         if (isalpha(*p) || *p == '_') {
             char *start = p;
