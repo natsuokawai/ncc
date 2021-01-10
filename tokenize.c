@@ -103,11 +103,11 @@ Token *tokenize(char *input) {
         }
 
         // Identifier
-        if (('a' <= *p && *p <= 'z') || ('A' <= *p && *p <= 'Z')) {
+        if (isalpha(*p) || *p == '_') {
             char *start = p;
             do {
                 p++;
-            } while (('a' <= *p && *p <= 'z') || ('A' <= *p && *p <= 'Z') || ('0' <= *p && *p <= '9'));
+            } while (isalnum(*p) || *p == '_');
             cur = cur->next = new_token(TK_IDENT, start, p);
             continue;
         }
