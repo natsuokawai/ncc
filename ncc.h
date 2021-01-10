@@ -64,6 +64,7 @@ typedef enum {
     ND_ASSIGN,    // '='
     ND_NEG,       // unary -
     ND_EXPR_STMT, // Expression statement
+    ND_RET_STMT,  // Return statement
     ND_VAR,       // Variable
     ND_NUM,       // Integer
 } NodeKind;
@@ -86,7 +87,6 @@ struct Function {
     Obj *locals;
     int stack_size;
 };
-
 
 Function *parse(Token **rest, Token *tok);
 
