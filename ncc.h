@@ -13,11 +13,11 @@
 
 // Token
 typedef enum {
-    TK_IDENT,  // Identifiers
-    TK_PUNCT,  // Punctuators
-    TK_RETURN, // Return statement
-    TK_NUM,    // Numeric literals
-    TK_EOF,    // End-of-file markers
+    TK_IDENT,   // Identifiers
+    TK_PUNCT,   // Punctuators
+    TK_KEYWORD, // Keywords: return, if, for...
+    TK_NUM,     // Numeric literals
+    TK_EOF,     // End-of-file markers
 } TokenKind;
 
 // Token type
