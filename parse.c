@@ -94,7 +94,7 @@ static Node *if_stmt(Token **rest, Token *tok) {
     Node *cond = expr(&tok, tok);
     tok = skip(tok, ")");
 
-    Node *node = new_unary(ND_IF_STMT, stmt(rest, tok));
+    Node *node = new_unary(ND_IF_STMT, stmt(&tok, tok));
     node->cond = cond;
 
     *rest = tok;

@@ -114,6 +114,13 @@ static void gen_stmt(Node *node) {
         gen_expr(node->lhs);
         printf("  jmp .L.return\n");
         return;
+    case ND_IF_STMT:
+        gen_expr(node->cond);
+        printf("  cmp $0, %%rax\n");
+        printf("  je .L.end\n");
+        gen_stmt(node->lhs);
+        printf(".L.end:\n");
+        return;
     }
 
     error("invalid statement");
