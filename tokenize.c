@@ -78,6 +78,14 @@ static int read_punct(char *p) {
     return ispunct(*p) ? 1 : 0;
 }
 
+static void convert_keywords(Token *tok) {
+    for (Token *t = tok; t; t = t->next) {
+        if (equal(t, "return")) {
+            t->kind = TK_RETURN;
+        }
+    }
+}
+
 Token *tokenize(char *input) {
    current_input = input;
    char *p = current_input;
@@ -99,13 +107,6 @@ Token *tokenize(char *input) {
             char *q = p;
             cur->val = strtol(p, &p, 10);
             cur->len = p - q;
-            continue;
-        }
-
-        // Return
-        if (!strncmp(p, "return", 6) && (!isalnum(p[6]) && p[6] != '_')) {
-            cur = cur->next = new_token(TK_RETURN, p, p + 6);
-            p += 6;
             continue;
         }
 
@@ -133,6 +134,7 @@ Token *tokenize(char *input) {
     }
 
     cur = cur->next = new_token(TK_EOF, p, p);
+    convert_keywords(head.next);
     return head.next;
 }
 
