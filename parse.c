@@ -88,14 +88,14 @@ static Node *return_stmt(Token **rest, Token *tok) {
     *rest = skip(tok, ";");
     return node;
 }
-
+// if-stmt = if "(" expr ")" stmt ( else stmt )
 static Node *if_stmt(Token **rest, Token *tok) {
+    Node *node = new_node(ND_IF_STMT);
     tok = skip(tok, "(");
-    Node *cond = expr(&tok, tok);
+    node->cond = expr(&tok, tok);
     tok = skip(tok, ")");
 
-    Node *node = new_unary(ND_IF_STMT, stmt(&tok, tok));
-    node->cond = cond;
+    node->lhs = stmt(&tok, tok);
 
     *rest = tok;
     return node;
