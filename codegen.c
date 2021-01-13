@@ -105,26 +105,33 @@ static void gen_expr(Node *node) {
     error("invalid expression");
 }
 
+static int count(void) {
+    static int i = 1;
+    return i++;
+}
+
 static void gen_stmt(Node *node) {
     switch (node->kind) {
-    case ND_EXPR_STMT:
-        gen_expr(node->lhs);
+    case ND_IF_STMT: {
+        int c = count();
+        gen_expr(node->cond);
+        printf("  cmp $0, %%rax\n");
+        printf("  je .L.else.%d\n", c); // if cond == 0, jump to .L.else
+        gen_stmt(node->lhs);
+        printf("  jmp .L.end.%d\n", c); // jump to .L.end for not entering else block
+        printf(".L.else.%d:\n", c);
+        if (node->rhs) {
+            gen_stmt(node->rhs);
+        }
+        printf(".L.end.%d:\n", c);
         return;
+    }
     case ND_RET_STMT:
         gen_expr(node->lhs);
         printf("  jmp .L.return\n");
         return;
-    case ND_IF_STMT:
-        gen_expr(node->cond);
-        printf("  cmp $0, %%rax\n");
-        printf("  je .L.else\n"); // if cond == 0, jump to .L.else
-        gen_stmt(node->lhs);
-        printf("  jmp .L.end\n"); // jump to .L.end for not entering else block
-        printf(".L.else:\n");
-        if (node->rhs) {
-            gen_stmt(node->rhs);
-        }
-        printf(".L.end:\n");
+    case ND_EXPR_STMT:
+        gen_expr(node->lhs);
         return;
     }
 
