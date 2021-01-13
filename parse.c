@@ -91,11 +91,16 @@ static Node *return_stmt(Token **rest, Token *tok) {
 // if-stmt = if "(" expr ")" stmt ( else stmt )
 static Node *if_stmt(Token **rest, Token *tok) {
     Node *node = new_node(ND_IF_STMT);
+
     tok = skip(tok, "(");
     node->cond = expr(&tok, tok);
     tok = skip(tok, ")");
 
     node->lhs = stmt(&tok, tok);
+
+    if (equal(tok, "else")) {
+        node->rhs = stmt(&tok, tok->next);
+    }
 
     *rest = tok;
     return node;
@@ -115,7 +120,6 @@ static Node *assign(Token **rest, Token *tok) {
     *rest = tok;
     return node;
 }
-
 
 // equality = relation ("==" relation | "!=" relation)*
 static Node *equality(Token **rest, Token *tok) {

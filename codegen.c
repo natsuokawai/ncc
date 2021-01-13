@@ -117,8 +117,13 @@ static void gen_stmt(Node *node) {
     case ND_IF_STMT:
         gen_expr(node->cond);
         printf("  cmp $0, %%rax\n");
-        printf("  je .L.end\n");
+        printf("  je .L.else\n"); // if cond == 0, jump to .L.else
         gen_stmt(node->lhs);
+        printf("  jmp .L.end\n"); // jump to .L.end for not entering else block
+        printf(".L.else:\n");
+        if (node->rhs) {
+            gen_stmt(node->rhs);
+        }
         printf(".L.end:\n");
         return;
     }

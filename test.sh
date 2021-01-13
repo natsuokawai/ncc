@@ -60,6 +60,11 @@ assert 6 'a=2;b=3;return a*b;'
 assert 4 'a=1; return a+ 3; 1;'
 assert 3 'a=6; b=2; return(a/b);'
 
-assert 3 'if(1<4) 3;'
+assert 3 'if (0) return 2; return 3;'
+assert 3 'if (1-1) return 2; 3;'
+assert 2 'if (1) return 2; 3;'
+assert 2 'if (2>1) 2; else 3;'
+assert 3 'if (0) 2; else 3;'
+
 
 echo OK
