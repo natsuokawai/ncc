@@ -145,6 +145,17 @@ static void gen_stmt(Node *node) {
         printf(".L.end.%d:\n", c);
         return;
     }
+    case ND_WHILE_STMT: {
+        int c = count();
+        printf(".L.while.%d:\n", c);
+        gen_expr(node->cond);
+        printf("  cmp $0, %%rax\n");
+        printf("  je .L.end.%d\n", c);
+        gen_stmt(node->lhs);
+        printf("  jmp .L.while.%d\n", c);
+        printf(".L.end.%d:\n", c);
+        return;
+    }
     case ND_RET_STMT:
         gen_expr(node->lhs);
         printf("  jmp .L.return\n");
