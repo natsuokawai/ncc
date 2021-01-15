@@ -132,8 +132,8 @@ static void gen_stmt(Node *node) {
             gen_expr(node->init);
         }
         printf(".L.loop.%d:\n", c);
-        if (node->test) {
-            gen_expr(node->test);
+        if (node->cond) {
+            gen_expr(node->cond);
             printf("  cmp $0, %%rax\n");
             printf("  je .L.end.%d\n", c); // if cond == 0, jump to .L.end
         }

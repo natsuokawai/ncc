@@ -78,9 +78,8 @@ struct Node {
     Node *next;    // Next node
     Node *lhs;     // Left-hand side
     Node *rhs;     // Right-hand side
-    Node *cond;    // Used if kind == ND_IF_STMT
+    Node *cond;    // Used if kind == ND_IF_STMT || kind == ND_FOR_STMT
     Node *init;    // Used if kind == ND_FOR_STMT
-    Node *test;    // Used if kind == ND_FOR_STMT
     Node *update;  // Used if kind == ND_FOR_STMT
     Obj *var;      // Used if kind == ND_VAR
     int val;       // Used if kind == ND_NUM

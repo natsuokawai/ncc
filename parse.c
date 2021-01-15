@@ -125,7 +125,7 @@ static Node *for_stmt(Token **rest, Token *tok) {
 
     // parse test expression
     if (!equal(tok, ";")) {
-        node->test = expr(&tok, tok);
+        node->cond = expr(&tok, tok);
     }
     tok = skip(tok, ";");
 
