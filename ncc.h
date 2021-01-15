@@ -65,7 +65,8 @@ typedef enum {
     ND_NEG,       // unary -
     ND_EXPR_STMT, // Expression statement
     ND_RET_STMT,  // Return statement
-    ND_IF_STMT,   // IF statement
+    ND_IF_STMT,   // If statement
+    ND_FOR_STMT,  // For statement
     ND_VAR,       // Variable
     ND_NUM,       // Integer
 } NodeKind;
@@ -77,7 +78,10 @@ struct Node {
     Node *next;    // Next node
     Node *lhs;     // Left-hand side
     Node *rhs;     // Right-hand side
-    Node *cond;    // User if kind == ND_IF_STMT
+    Node *cond;    // Used if kind == ND_IF_STMT
+    Node *init;    // Used if kind == ND_FOR_STMT
+    Node *test;    // Used if kind == ND_FOR_STMT
+    Node *update;  // Used if kind == ND_FOR_STMT
     Obj *var;      // Used if kind == ND_VAR
     int val;       // Used if kind == ND_NUM
 };
