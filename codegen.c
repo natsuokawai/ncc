@@ -112,6 +112,11 @@ static int count(void) {
 
 static void gen_stmt(Node *node) {
     switch (node->kind) {
+    case ND_BLOCK:
+        for (Node *n = node->body; n; n = n->next) {
+            gen_stmt(n);
+        }
+        return;
     case ND_IF_STMT: {
         int c = count();
         gen_expr(node->cond);

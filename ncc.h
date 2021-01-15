@@ -68,6 +68,7 @@ typedef enum {
     ND_IF_STMT,    // If statement
     ND_FOR_STMT,   // For statement
     ND_WHILE_STMT, // While statement
+    ND_BLOCK,      // { ... }
     ND_VAR,        // Variable
     ND_NUM,        // Integer
 } NodeKind;
@@ -79,6 +80,7 @@ struct Node {
     Node *next;    // Next node
     Node *lhs;     // Left-hand side
     Node *rhs;     // Right-hand side
+    Node *body;    // Collection of statement Node
     Node *cond;    // Used if kind == ND_IF_STMT || kind == ND_FOR_STMT
     Node *init;    // Used if kind == ND_FOR_STMT
     Node *update;  // Used if kind == ND_FOR_STMT

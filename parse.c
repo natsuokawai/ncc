@@ -57,6 +57,7 @@ static Node *return_stmt(Token **rest, Token *tok);
 static Node *if_stmt(Token **rest, Token *tok);
 static Node *for_stmt(Token **rest, Token *tok);
 static Node *while_stmt(Token **rest, Token *tok);
+static Node *block(Token **rest, Token *tok);
 static Node *assign(Token **rest, Token *tok);
 static Node *equality(Token **rest, Token *tok);
 static Node *relation(Token **rest, Token *tok);
@@ -78,6 +79,9 @@ static Node *stmt(Token **rest, Token *tok) {
     }
     if (equal(tok, "while")) {
         return while_stmt(rest, tok->next);
+    }
+    if (equal(tok, "{")) {
+        return block(rest, tok);
     }
     return expr_stmt(rest, tok);
 }
@@ -154,6 +158,22 @@ static Node *while_stmt(Token **rest, Token *tok) {
     tok = skip(tok, ")");
 
     node->lhs = stmt(&tok, tok);
+
+    *rest = tok;
+    return node;
+}
+
+static Node *block(Token **rest, Token *tok) {
+    Node *node = new_node(ND_BLOCK);
+    Node head = {};
+    Node *body = &head;
+
+    tok = skip(tok, "{");
+    while (!equal(tok, "}")) {
+        body = body->next = stmt(&tok, tok);
+    }
+    node->body = head.next;
+    tok = skip(tok, "}");
 
     *rest = tok;
     return node;
