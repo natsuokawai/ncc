@@ -126,6 +126,25 @@ static void gen_stmt(Node *node) {
         printf(".L.end.%d:\n", c);
         return;
     }
+    case ND_FOR_STMT: {
+        int c = count();
+        if (node->init) {
+            gen_expr(node->init);
+        }
+        printf(".L.loop.%d:\n", c);
+        if (node->test) {
+            gen_expr(node->test);
+            printf("  cmp $0, %%rax\n");
+            printf("  je .L.end.%d\n", c); // if cond == 0, jump to .L.end
+        }
+        gen_stmt(node->lhs);
+        if (node->update) {
+            gen_expr(node->update);
+        }
+        printf("  jmp .L.loop.%d\n", c);
+        printf(".L.end.%d:\n", c);
+        return;
+    }
     case ND_RET_STMT:
         gen_expr(node->lhs);
         printf("  jmp .L.return\n");
