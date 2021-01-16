@@ -324,14 +324,8 @@ static Node *primary(Token **rest, Token *tok) {
 }
 
 Function *parse(Token **rest, Token *tok) {
-    Node head = {};
-    Node *cur = &head;
-    while (tok->kind != TK_EOF) {
-        cur = cur->next = stmt(&tok, tok);
-    }
-
     Function *prog = calloc(1, sizeof(Function));
-    prog->body = head.next;
+    prog->body = block(&tok, tok);
     prog->locals = locals;
 
     return prog;
