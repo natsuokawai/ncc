@@ -72,13 +72,13 @@ static Node *stmt(Token **rest, Token *tok) {
         return return_stmt(rest, tok);
     }
     if (equal(tok, "if")) {
-        return if_stmt(rest, tok->next);
+        return if_stmt(rest, tok);
     }
     if (equal(tok, "for")) {
-        return for_stmt(rest, tok->next);
+        return for_stmt(rest, tok);
     }
     if (equal(tok, "while")) {
-        return while_stmt(rest, tok->next);
+        return while_stmt(rest, tok);
     }
     if (equal(tok, "{")) {
         return block(rest, tok);
@@ -99,20 +99,21 @@ static Node *expr_stmt(Token **rest, Token *tok) {
 
 // return-stmt = return expr ";"
 static Node *return_stmt(Token **rest, Token *tok) {
-    skip(tok, "return");
-    Node *node = new_unary(ND_RET_STMT, expr(&tok, tok->next));
+    tok = skip(tok, "return");
+
+    Node *node = new_unary(ND_RET_STMT, expr(&tok, tok));
     *rest = skip(tok, ";");
     return node;
 }
 
 // if-stmt = if "(" expr ")" stmt ( else stmt )
 static Node *if_stmt(Token **rest, Token *tok) {
-    Node *node = new_node(ND_IF_STMT);
+    tok = skip(tok, "if");
 
+    Node *node = new_node(ND_IF_STMT);
     tok = skip(tok, "(");
     node->cond = expr(&tok, tok);
     tok = skip(tok, ")");
-
     node->lhs = stmt(&tok, tok);
 
     if (equal(tok, "else")) {
@@ -125,8 +126,9 @@ static Node *if_stmt(Token **rest, Token *tok) {
 
 // for-stmt = for "(" expr? ";" expr? ";" expr ")" stmt
 static Node *for_stmt(Token **rest, Token *tok) {
-    Node *node = new_node(ND_FOR_STMT);
+    tok = skip(tok, "for");
 
+    Node *node = new_node(ND_FOR_STMT);
     tok = skip(tok, "(");
 
     // parse initialize expression
@@ -155,12 +157,12 @@ static Node *for_stmt(Token **rest, Token *tok) {
 
 // while-stmt = while "(" expr ")" stmt
 static Node *while_stmt(Token **rest, Token *tok) {
-    Node *node = new_node(ND_WHILE_STMT);
+    tok = skip(tok, "while");
 
+    Node *node = new_node(ND_WHILE_STMT);
     tok = skip(tok, "(");
     node->cond = expr(&tok, tok);
     tok = skip(tok, ")");
-
     node->lhs = stmt(&tok, tok);
 
     *rest = tok;
@@ -168,11 +170,12 @@ static Node *while_stmt(Token **rest, Token *tok) {
 }
 
 static Node *block(Token **rest, Token *tok) {
+    tok = skip(tok, "{");
+
     Node *node = new_node(ND_BLOCK);
     Node head = {};
     Node *body = &head;
 
-    tok = skip(tok, "{");
     while (!equal(tok, "}")) {
         body = body->next = stmt(&tok, tok);
     }
