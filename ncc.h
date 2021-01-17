@@ -63,6 +63,8 @@ typedef enum {
     ND_LE,         // '<='
     ND_ASSIGN,     // '='
     ND_NEG,        // unary -
+    ND_ADDR,       // unary &
+    ND_DEREF,      // unary *
     ND_EXPR_STMT,  // Expression statement
     ND_RET_STMT,   // Return statement
     ND_IF_STMT,    // If statement
