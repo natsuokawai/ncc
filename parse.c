@@ -159,7 +159,7 @@ static Node *for_stmt(Token **rest, Token *tok) {
 static Node *while_stmt(Token **rest, Token *tok) {
     tok = skip(tok, "while");
 
-    Node *node = new_node(ND_WHILE_STMT);
+    Node *node = new_node(ND_FOR_STMT);
     tok = skip(tok, "(");
     node->cond = expr(&tok, tok);
     tok = skip(tok, ")");
