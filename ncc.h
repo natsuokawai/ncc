@@ -78,14 +78,19 @@ typedef struct Node Node;
 struct Node {
     NodeKind kind; // Node kind
     Node *next;    // Next node
+    Token *tok;    // Representative Token
+
     Node *lhs;     // Left-hand side
     Node *rhs;     // Right-hand side
+
     Node *body;    // Collection of statement Node
+
     Node *cond;    // Used if "if" or "for"
     Node *then;    // Used if "if" or "for"
     Node *els;     // Used if "if" or "for"
     Node *init;    // Used if "for"
     Node *update;  // Used if "for"
+
     Obj *var;      // Used if kind == ND_VAR
     int val;       // Used if kind == ND_NUM
 };
