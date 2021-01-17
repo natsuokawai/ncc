@@ -114,10 +114,10 @@ static Node *if_stmt(Token **rest, Token *tok) {
     tok = skip(tok, "(");
     node->cond = expr(&tok, tok);
     tok = skip(tok, ")");
-    node->lhs = stmt(&tok, tok);
+    node->then = stmt(&tok, tok);
 
     if (equal(tok, "else")) {
-        node->rhs = stmt(&tok, tok->next);
+        node->els = stmt(&tok, tok->next);
     }
 
     *rest = tok;
@@ -149,7 +149,7 @@ static Node *for_stmt(Token **rest, Token *tok) {
     }
     tok = skip(tok, ")");
 
-    node->lhs = stmt(&tok, tok);
+    node->then = stmt(&tok, tok);
 
     *rest = tok;
     return node;
@@ -163,7 +163,7 @@ static Node *while_stmt(Token **rest, Token *tok) {
     tok = skip(tok, "(");
     node->cond = expr(&tok, tok);
     tok = skip(tok, ")");
-    node->lhs = stmt(&tok, tok);
+    node->then = stmt(&tok, tok);
 
     *rest = tok;
     return node;

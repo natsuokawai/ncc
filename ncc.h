@@ -81,9 +81,11 @@ struct Node {
     Node *lhs;     // Left-hand side
     Node *rhs;     // Right-hand side
     Node *body;    // Collection of statement Node
-    Node *cond;    // Used if kind == ND_IF_STMT || kind == ND_FOR_STMT
-    Node *init;    // Used if kind == ND_FOR_STMT
-    Node *update;  // Used if kind == ND_FOR_STMT
+    Node *cond;    // Used if "if" or "for"
+    Node *then;    // Used if "if" or "for"
+    Node *els;     // Used if "if" or "for"
+    Node *init;    // Used if "for"
+    Node *update;  // Used if "for"
     Obj *var;      // Used if kind == ND_VAR
     int val;       // Used if kind == ND_NUM
 };

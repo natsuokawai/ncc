@@ -122,11 +122,11 @@ static void gen_stmt(Node *node) {
         gen_expr(node->cond);
         printf("  cmp $0, %%rax\n");
         printf("  je .L.else.%d\n", c); // if cond == 0, jump to .L.else
-        gen_stmt(node->lhs);
+        gen_stmt(node->then);
         printf("  jmp .L.end.%d\n", c); // jump to .L.end for not entering else block
         printf(".L.else.%d:\n", c);
-        if (node->rhs) {
-            gen_stmt(node->rhs);
+        if (node->els) {
+            gen_stmt(node->els);
         }
         printf(".L.end.%d:\n", c);
         return;
@@ -142,7 +142,7 @@ static void gen_stmt(Node *node) {
             printf("  cmp $0, %%rax\n");
             printf("  je .L.end.%d\n", c); // if cond == 0, jump to .L.end
         }
-        gen_stmt(node->lhs);
+        gen_stmt(node->then);
         if (node->update) {
             gen_expr(node->update);
         }
@@ -156,7 +156,7 @@ static void gen_stmt(Node *node) {
         gen_expr(node->cond);
         printf("  cmp $0, %%rax\n");
         printf("  je .L.end.%d\n", c);
-        gen_stmt(node->lhs);
+        gen_stmt(node->then);
         printf("  jmp .L.while.%d\n", c);
         printf(".L.end.%d:\n", c);
         return;
