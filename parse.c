@@ -52,6 +52,7 @@ Obj *find_var(Token *tok) {
     return NULL;
 }
 
+static Node *stmt(Token **rest, Token *tok);
 static Node *expr(Token **rest, Token *tok);
 static Node *expr_stmt(Token **rest, Token *tok);
 static Node *return_stmt(Token **rest, Token *tok);
@@ -312,13 +313,15 @@ static Node *add(Token **rest, Token *tok) {
     Node *node = mul(&tok, tok);
 
     for (;;) {
+        Token *start = tok;
+
         if (equal(tok, "+")) {
-            node = new_binary(ND_ADD, node, mul(&tok, tok->next), tok);
+            node = new_add(node, mul(&tok, tok->next), start);
             continue;
         }
 
         if (equal(tok, "-")) {
-            node = new_binary(ND_SUB, node, mul(&tok, tok->next), tok);
+            node = new_sub(node, mul(&tok, tok->next), start);
             continue;
         }
 
