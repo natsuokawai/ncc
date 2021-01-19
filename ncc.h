@@ -126,6 +126,9 @@ struct Type {
 
 extern Type *ty_int;
 
+bool is_integer(Type *ty);
+void add_type(Node *node);
+
 
 //
 // codegen.c

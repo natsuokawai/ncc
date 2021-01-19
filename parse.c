@@ -179,6 +179,7 @@ static Node *block(Token **rest, Token *tok) {
 
     while (!equal(tok, "}")) {
         body = body->next = stmt(&tok, tok);
+        add_type(body);
     }
     node->body = head.next;
     tok = skip(tok, "}");
@@ -250,6 +251,32 @@ static Node *relation(Token **rest, Token *tok) {
         *rest = tok;
         return node;
     }
+}
+
+static Node *new_add(Node *lhs, Node *rhs, Token *tok) {
+    add_type(lhs);
+    add_type(rhs);
+
+    // ptr + prt is invalid
+    if (lhs->ty->base && rhs->ty->base) {
+        error_tok(tok, "invalid operands");
+    }
+
+    // num + num
+    if (is_integer(lhs->ty) && is_integer(rhs->ty)) {
+        return new_binary(ND_ADD, lhs, rhs, tok);
+    }
+
+    // num + ptr is converted to ptr + num
+    if (!lhs->ty->base && rhs->ty->base) {
+        Node *tmp = lhs;
+        lhs = rhs;
+        rhs = tmp;
+    } 
+
+    // ptr + num
+    rhs = new_binary(ND_MUL, rhs, new_num(8, tok), tok);
+    return new_binary(ND_ADD, lhs, rhs, tok);
 }
 
 // add = mul ("+" mul | "-" mul)*
