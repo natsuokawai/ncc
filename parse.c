@@ -291,15 +291,18 @@ static Node *new_sub(Node *lhs, Node *rhs, Token *tok) {
     // ptr - num
     if (lhs->ty->base && is_integer(rhs->ty)) {
         rhs = new_binary(ND_MUL, rhs, new_num(8, tok), tok);
-        return new_binary(ND_SUB, lhs, rhs, tok);
+        add_type(rhs);
+        Node *node = new_binary(ND_SUB, lhs, rhs, tok);
+        node->ty = lhs->ty;
+        return node;
     }
 
     // ptr - ptr: the number of elements between then
     if (lhs->ty->base && rhs->ty->base) {
+        Node *node = new_binary(ND_SUB, lhs, rhs, tok);
+        node->ty = ty_int;
+        return new_binary(ND_DIV, node, new_num(0, tok), tok);
     }
-
-
-    // num + ptr is converted to ptr + num
 
     error_tok(tok, "invalid operands");
 }
