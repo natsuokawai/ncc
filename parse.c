@@ -272,11 +272,36 @@ static Node *new_add(Node *lhs, Node *rhs, Token *tok) {
         Node *tmp = lhs;
         lhs = rhs;
         rhs = tmp;
-    } 
+    }
 
     // ptr + num
     rhs = new_binary(ND_MUL, rhs, new_num(8, tok), tok);
     return new_binary(ND_ADD, lhs, rhs, tok);
+}
+
+static Node *new_sub(Node *lhs, Node *rhs, Token *tok) {
+    add_type(lhs);
+    add_type(rhs);
+
+    // num - num
+    if (is_integer(lhs->ty) && is_integer(rhs->ty)) {
+        return new_binary(ND_SUB, lhs, rhs, tok);
+    }
+
+    // ptr - num
+    if (lhs->ty->base && is_integer(rhs->ty)) {
+        rhs = new_binary(ND_MUL, rhs, new_num(8, tok), tok);
+        return new_binary(ND_SUB, lhs, rhs, tok);
+    }
+
+    // ptr - ptr: the number of elements between then
+    if (lhs->ty->base && rhs->ty->base) {
+    }
+
+
+    // num + ptr is converted to ptr + num
+
+    error_tok(tok, "invalid operands");
 }
 
 // add = mul ("+" mul | "-" mul)*
