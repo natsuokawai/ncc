@@ -302,7 +302,7 @@ static Node *new_sub(Node *lhs, Node *rhs, Token *tok) {
     if (lhs->ty->base && rhs->ty->base) {
         Node *node = new_binary(ND_SUB, lhs, rhs, tok);
         node->ty = ty_int;
-        return new_binary(ND_DIV, node, new_num(0, tok), tok);
+        return new_binary(ND_DIV, node, new_num(8, tok), tok);
     }
 
     error_tok(tok, "invalid operands");
