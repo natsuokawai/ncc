@@ -198,7 +198,12 @@ static Node *block(Token **rest, Token *tok) {
 static Node *var_def(Token **rest, Token *tok) {
     tok = skip(tok, "int");
 
-    new_lvar(ty_int, strndup(tok->loc, tok->len));
+    Type *ty = ty_int;
+    while (equal(tok, "*")) {
+        ty = pointer_to(ty);
+        tok = tok->next;
+    }
+    new_lvar(ty, strndup(tok->loc, tok->len));
     tok = skip(tok->next, ";");
 
     *rest = tok;

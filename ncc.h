@@ -128,6 +128,7 @@ struct Type {
 extern Type *ty_int;
 
 bool is_integer(Type *ty);
+Type *pointer_to(Type *base);
 void add_type(Node *node);
 
 
