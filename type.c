@@ -43,7 +43,6 @@ void add_type(Node *node) {
     case ND_NE:
     case ND_LT:
     case ND_LE:
-    case ND_VAR:
     case ND_NUM:
         node->ty = ty_int;
         return;
@@ -56,6 +55,9 @@ void add_type(Node *node) {
         } else {
             node->ty = ty_int;
         }
+        return;
+    case ND_VAR:
+        node->ty = node->var->ty;
         return;
     }
 }

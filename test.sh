@@ -48,17 +48,17 @@ assert 0 '{ 1>=2; }'
 
 assert 3 '{ 1; 2; 3; }'
 
-assert 3 '{ a=3; a; }'
-assert 8 '{ a=3; z=5; a+z; }'
-assert 6 '{ a=b=3; a+b; }'
-assert 3 '{ foo=3; foo; }'
-assert 8 '{ foo123=3; bar =5;foo123 +bar; }'
-assert 2 '{ _foo_bar =1; 1+_foo_bar; }'
+assert 3 '{ int a; a=3; a; }'
+assert 8 '{ int a; int z; a=3; z=5; a+z; }'
+assert 6 '{ int a; int b; a=b=3; a+b; }'
+assert 3 '{ int foo; foo=3; foo; }'
+assert 8 '{ int foo123; foo123=3; int bar; bar =5;foo123 +bar; }'
+assert 2 '{ int _foo_bar; _foo_bar =1; 1+_foo_bar; }'
 
 assert 1 '{ return 1; }'
-assert 6 '{ a=2;b=3;return a*b; }'
-assert 4 '{ a=1; return a+ 3; 1; }'
-assert 3 '{ a=6; b=2; return(a/b); }'
+assert 6 '{ int a; int b; a=2;b=3;return a*b; }'
+assert 4 '{ int a; a=1; return a+ 3; 1; }'
+assert 3 '{ int a; int b; a=6; b=2; return(a/b); }'
 
 assert 3 '{ if (0) return 2; return 3; }'
 assert 3 '{ if (1-1) return 2; 3; }'
@@ -67,17 +67,17 @@ assert 2 '{ if (2>1) 2; else 3; }'
 assert 3 '{ if (0) 2; else 3; }'
 assert 4 '{ if (0) 2; else if (1-1) 3; else 4; }'
 
-assert 55 '{ i=0; j=0; for (i-0; i<=10; i=i+1) j=i+j; return j; }'
+assert 55 '{ int i; int j; i=0; j=0; for (i-0; i<=10; i=i+1) j=i+j; return j; }'
 assert 3 '{ for (;;) return 3; return 5; }'
-assert 1 '{ for (i=0; i < 5; i=i+1) if (i==3) return 1; return 5; }'
+assert 1 '{ int i; for (i=0; i < 5; i=i+1) if (i==3) return 1; return 5; }'
 
-assert 10 '{ i=0; while(i<10) i = i+1; return i; }'
+assert 10 '{ int i; i=0; while(i<10) i = i+1; return i; }'
 
 assert 3 '{ {1; {2;} return 3;} }'
 
 assert 5 '{ ;;; return 5; }'
 
-assert 3 '{ x=3; return *&x; }'
+assert 3 '{ int x; x=3; return *&x; }'
 assert 3 '{ x=3; y=&x; z=&y; return **z; }'
 assert 5 '{ x=3; y=5; return *(&x+1); }'
 assert 3 '{ x=3; y=5; return *(&y-1); }'

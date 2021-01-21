@@ -28,8 +28,9 @@ static Node *new_var_node(Obj *var, Token *tok) {
     return node;
 }
 
-static Obj *new_lvar(char *name) {
+static Obj *new_lvar(Type *ty, char *name) {
     Obj *var = calloc(1, sizeof(Obj));
+    var->ty = ty;
     var->name = name;
     var->next = locals;
     locals = var;
@@ -60,6 +61,7 @@ static Node *if_stmt(Token **rest, Token *tok);
 static Node *for_stmt(Token **rest, Token *tok);
 static Node *while_stmt(Token **rest, Token *tok);
 static Node *block(Token **rest, Token *tok);
+static Node *var_def(Token **rest, Token *tok);
 static Node *assign(Token **rest, Token *tok);
 static Node *equality(Token **rest, Token *tok);
 static Node *relation(Token **rest, Token *tok);
@@ -68,7 +70,7 @@ static Node *mul(Token **rest, Token *tok);
 static Node *unary(Token **rest, Token *tok);
 static Node *primary(Token **rest, Token *tok);
 
-// stmt = expr-stmt | return-stmt | if-stmt | for-stmt | while-stmt
+// stmt = expr-stmt | return-stmt | if-stmt | for-stmt | while-stmt | block | var_def
 static Node *stmt(Token **rest, Token *tok) {
     if (equal(tok, "return")) {
         return return_stmt(rest, tok);
@@ -84,6 +86,9 @@ static Node *stmt(Token **rest, Token *tok) {
     }
     if (equal(tok, "{")) {
         return block(rest, tok);
+    }
+    if (equal(tok, "int")) {
+        return var_def(rest, tok);
     }
     return expr_stmt(rest, tok);
 }
@@ -187,6 +192,17 @@ static Node *block(Token **rest, Token *tok) {
 
     *rest = tok;
     return node;
+}
+
+// var_def = int var ";"
+static Node *var_def(Token **rest, Token *tok) {
+    tok = skip(tok, "int");
+
+    new_lvar(ty_int, strndup(tok->loc, tok->len));
+    tok = skip(tok->next, ";");
+
+    *rest = tok;
+    return new_node(ND_BLOCK, tok);
 }
 
 // expr = assign
@@ -379,7 +395,7 @@ static Node *primary(Token **rest, Token *tok) {
     if (tok->kind == TK_IDENT) {
         Obj *var = find_var(tok);
         if (!var) {
-            var = new_lvar(strndup(tok->loc, tok->len));
+            error_tok(tok, "undefined variable");
         }
         *rest = tok->next;
         return new_var_node(var, tok);

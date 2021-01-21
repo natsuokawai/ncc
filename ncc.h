@@ -49,6 +49,7 @@ Token *tokenize(char *input);
 typedef struct Obj Obj;
 struct Obj {
     Obj *next;
+    Type *ty;   // Variable type
     char *name; // Variable name
     int offset; // Offset from RBP
 };
