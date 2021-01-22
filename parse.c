@@ -204,10 +204,17 @@ static Node *var_def(Token **rest, Token *tok) {
         tok = tok->next;
     }
     new_lvar(ty, strndup(tok->loc, tok->len));
-    tok = skip(tok->next, ";");
+
+    Node *node;
+    if (equal(tok->next, "=")) {
+        node = expr_stmt(&tok, tok);
+    } else {
+        node = new_node(ND_BLOCK, tok);
+        tok = skip(tok->next, ";");
+    }
 
     *rest = tok;
-    return new_node(ND_BLOCK, tok);
+    return node;
 }
 
 // expr = assign
