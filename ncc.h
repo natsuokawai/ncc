@@ -37,6 +37,7 @@ void error_at(char *loc, char *fmt, ...);
 void error_tok(Token *tok, char *fmt, ...);
 bool equal(Token *tok, char *op);
 Token *skip(Token *tok, char *s);
+bool consume(Token **rest, Token *tok, char *str);
 Token *new_token(TokenKind kind, char *start, char *end);
 Token *tokenize(char *input);
 
@@ -123,6 +124,7 @@ typedef enum {
 struct Type {
     TypeKind kind;
     Type *base;
+    Token *name;
 };
 
 extern Type *ty_int;

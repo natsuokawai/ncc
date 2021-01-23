@@ -48,6 +48,15 @@ Token *skip(Token *tok, char *s) {
     return tok->next;
 }
 
+bool consume(Token **rest, Token *tok, char *str) {
+    if (equal(tok, str)) {
+        *rest = tok->next;
+        return true;
+    }
+    *rest = tok;
+    return false;
+}
+
 // Ensure that the current token is TK_NUM
 static int get_number(Token *tok) {
     if (tok->kind != TK_NUM) {

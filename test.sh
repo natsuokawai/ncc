@@ -91,4 +91,7 @@ assert 1 '{ int x; int y; x=3; y=5; return &y - &x; }'
 assert 1 '{ int x =1; x; }'
 assert 5 '{ int x=3; int *y=&x; *y=5; return x; }'
 
+assert 2 '{ int x,y; x=3; y=5; return y-x }'
+assert 2 '{ int x=3, y=5; return y-x; }'
+
 echo OK

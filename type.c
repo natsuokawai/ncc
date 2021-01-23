@@ -50,11 +50,10 @@ void add_type(Node *node) {
         node->ty = pointer_to(node->lhs->ty);
         return;
     case ND_DEREF:
-        if (node->lhs->ty->kind == TY_PTR) {
-            node->ty = node->lhs->ty->base;
-        } else {
-            node->ty = ty_int;
+        if (node->lhs->ty->kind != TY_PTR) {
+            error_tok(node->tok, "invalid pointer dereference");
         }
+        node->ty = node->lhs->ty->base;
         return;
     case ND_VAR:
         node->ty = node->var->ty;
