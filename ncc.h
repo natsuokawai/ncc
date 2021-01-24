@@ -75,6 +75,7 @@ typedef enum {
     ND_FOR_STMT,   // For statement
     ND_WHILE_STMT, // While statement
     ND_BLOCK,      // { ... }
+    ND_FUNCALL,    // Function call
     ND_VAR,        // Variable
     ND_NUM,        // Integer
 } NodeKind;
@@ -82,24 +83,26 @@ typedef enum {
 // AST node type
 typedef struct Node Node;
 struct Node {
-    NodeKind kind; // Node kind
-    Node *next;    // Next node
-    Type *ty;      // Type, e.g. int or pointer to int
-    Token *tok;    // Representative Token
+    NodeKind kind;  // Node kind
+    Node *next;     // Next node
+    Type *ty;       // Type, e.g. int or pointer to int
+    Token *tok;     // Representative Token
 
-    Node *lhs;     // Left-hand side
-    Node *rhs;     // Right-hand side
+    Node *lhs;      // Left-hand side
+    Node *rhs;      // Right-hand side
 
-    Node *body;    // Collection of statement Node
+    Node *body;     // Collection of statement Node
 
-    Node *cond;    // Used if "if" or "for"
-    Node *then;    // Used if "if" or "for"
-    Node *els;     // Used if "if" or "for"
-    Node *init;    // Used if "for"
-    Node *update;  // Used if "for"
+    char *funcname; // Functaion call
 
-    Obj *var;      // Used if kind == ND_VAR
-    int val;       // Used if kind == ND_NUM
+    Node *cond;     // Used if "if" or "for"
+    Node *then;     // Used if "if" or "for"
+    Node *els;      // Used if "if" or "for"
+    Node *init;     // Used if "for"
+    Node *update;   // Used if "for"
+
+    Obj *var;       // Used if kind == ND_VAR
+    int val;        // Used if kind == ND_NUM
 };
 
 // Function
