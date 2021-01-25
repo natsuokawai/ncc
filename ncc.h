@@ -94,6 +94,7 @@ struct Node {
     Node *body;     // Collection of statement Node
 
     char *funcname; // Functaion call
+    Node *args;
 
     Node *cond;     // Used if "if" or "for"
     Node *then;     // Used if "if" or "for"
