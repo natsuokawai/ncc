@@ -508,7 +508,7 @@ static Function *function(Token **rest, Token *tok) {
 
     Function *fn = calloc(1, sizeof(Function));
     fn->name = get_ident(ty->name);
-    fn->body = block(&tok, tok);
+    fn->body = block(rest, tok);
     fn->locals = locals;
     return fn;
 }
