@@ -53,6 +53,8 @@ Obj *find_var(Token *tok) {
     return NULL;
 }
 
+static Type *declspec(Token **rest, Token *tok);
+static Type *declarator(Token **rest, Token *tok, Type *ty);
 static Node *stmt(Token **rest, Token *tok);
 static Node *expr(Token **rest, Token *tok);
 static Node *expr_stmt(Token **rest, Token *tok);
@@ -186,7 +188,17 @@ static Type *declspec(Token **rest, Token *tok) {
     return ty_int;
 }
 
-// declarator = "*"* ident
+// type-suffix = ("(" func-params)?
+static Type *type_suffix(Token **rest, Token *tok, Type *ty) {
+    if (equal(tok, "(")) {
+        *rest = skip(tok->next, ")");
+        return func_type(ty);
+    }
+    *rest = tok;
+    return ty;
+}
+
+// declarator = "*"* ident type-suffix
 static Type *declarator(Token **rest, Token *tok, Type *ty) {
     while (consume(&tok, tok, "*")) {
         ty = pointer_to(ty);
@@ -195,8 +207,8 @@ static Type *declarator(Token **rest, Token *tok, Type *ty) {
         error_tok(tok, "expected a variable name");
     }
 
+    ty = type_suffix(rest, tok->next, ty);
     ty->name = tok;
-    *rest = tok->next;
     return ty;
 }
 
@@ -230,31 +242,6 @@ static Node *declaration(Token **rest, Token *tok) {
     *rest = tok->next;
     return node;
 }
-
-// declfunc = declspec declarator "(" (declspec declarator)* ")" block
-//static Node *declfunc(Token **rest, Token *tok) {
-//    Node *node = new_node(ND_FUNCTION, tok);
-//
-//    Type *basety = declspec(&tok, tok);
-//    Type *ty = declarator(&tok, tok, basety);
-//    node->ty = ty;
-//    node->funcname = get_ident(ty->name);
-//
-//    tok = skip(tok, "(");
-//    Node head = {};
-//    Node *cur = &head;
-//    while (!equal(tok, ")")) {
-//        if (cur != &head) {
-//            tok = skip(tok, ",");
-//        }
-//        cur = cur->next = assign(&tok, tok);
-//    }
-//    tok = skip(tok, ")");
-//
-//    node->body = block(&tok, tok);
-//
-//    return node;
-//}
 
 // block = "{" (declaration | stmt)* "}"
 static Node *block(Token **rest, Token *tok) {
@@ -513,10 +500,25 @@ static Node *primary(Token **rest, Token *tok) {
     error_tok(tok, "expected an expression");
 }
 
-Function *parse(Token **rest, Token *tok) {
-    Function *prog = calloc(1, sizeof(Function));
-    prog->body = block(&tok, tok);
-    prog->locals = locals;
+static Function *function(Token **rest, Token *tok) {
+    Type *ty = declspec(&tok, tok);
+    ty = declarator(&tok, tok, ty);
 
-    return prog;
+    locals = NULL;
+
+    Function *fn = calloc(1, sizeof(Function));
+    fn->name = get_ident(ty->name);
+    fn->body = block(&tok, tok);
+    fn->locals = locals;
+    return fn;
+}
+
+Function *parse(Token *tok) {
+    Function head = {};
+    Function *cur = &head;
+
+    while (tok->kind != TK_EOF) {
+        cur = cur->next = function(&tok, tok);
+    }
+    return head.next;
 }
