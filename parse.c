@@ -231,6 +231,32 @@ static Node *declaration(Token **rest, Token *tok) {
     return node;
 }
 
+// declfunc = declspec declarator "(" (declspec declarator)* ")" block
+//static Node *declfunc(Token **rest, Token *tok) {
+//    Node *node = new_node(ND_FUNCTION, tok);
+//
+//    Type *basety = declspec(&tok, tok);
+//    Type *ty = declarator(&tok, tok, basety);
+//    node->ty = ty;
+//    node->funcname = get_ident(ty->name);
+//
+//    tok = skip(tok, "(");
+//    Node head = {};
+//    Node *cur = &head;
+//    while (!equal(tok, ")")) {
+//        if (cur != &head) {
+//            tok = skip(tok, ",");
+//        }
+//        cur = cur->next = assign(&tok, tok);
+//    }
+//    tok = skip(tok, ")");
+//
+//    node->body = block(&tok, tok);
+//
+//    return node;
+//}
+
+// block = "{" (declaration | stmt)* "}"
 static Node *block(Token **rest, Token *tok) {
     tok = skip(tok, "{");
 

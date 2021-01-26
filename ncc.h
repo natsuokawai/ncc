@@ -75,6 +75,7 @@ typedef enum {
     ND_FOR_STMT,   // For statement
     ND_WHILE_STMT, // While statement
     ND_BLOCK,      // { ... }
+    ND_FUNCTION,   // Function declaration
     ND_FUNCALL,    // Function call
     ND_VAR,        // Variable
     ND_NUM,        // Integer
