@@ -2,6 +2,7 @@
 
 static int depth;
 static char *argreg[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
+static Function *current_fn;
 
 static void gen_expr(Node *node);
 
@@ -38,11 +39,13 @@ static void gen_addr(Node *node) {
 // Align offsets to local variables
 static void assign_lvar_offsets(Function *prog) {
     int offset = 0;
-    for (Obj *var = prog->locals; var; var = var->next) {
-        offset += 8;
-        var->offset = -offset;
+    for (Function *fn = prog; fn; fn = fn->next) {
+        for (Obj *var = fn->locals; var; var = var->next) {
+            offset += 8;
+            var->offset = -offset;
+        }
+        fn->stack_size = align_to(offset, 16);
     }
-    prog->stack_size = align_to(offset, 16);
 }
 
 static void gen_expr(Node *node) {
@@ -182,7 +185,7 @@ static void gen_stmt(Node *node) {
     }
     case ND_RET_STMT:
         gen_expr(node->lhs);
-        printf("  jmp .L.return\n");
+        printf("  jmp .L.return.%s\n", current_fn->name);
         return;
     case ND_EXPR_STMT:
         gen_expr(node->lhs);
@@ -195,23 +198,24 @@ static void gen_stmt(Node *node) {
 void codegen(Function *prog) {
     assign_lvar_offsets(prog);
 
-    printf("  .global main\n");
-    printf("main:\n");
+    for (Function *fn = prog; fn; fn = fn->next) {
+        printf("  .global main\n");
+        printf("%s:\n", fn->name);
+        current_fn = fn;
 
-    // Prologue
-    printf("  push %%rbp\n");
-    printf("  mov %%rsp, %%rbp\n");
-    printf("  sub $%d, %%rsp\n", prog->stack_size);
+        // Prologue
+        printf("  push %%rbp\n");
+        printf("  mov %%rsp, %%rbp\n");
+        printf("  sub $%d, %%rsp\n", fn->stack_size);
 
-    // Traverse the AST to emit assembly
-    for (Node *n = prog->body; n; n = n->next) {
-        gen_stmt(n);
+        // Traverse the AST to emit assembly
+        gen_stmt(fn->body);
         assert(depth == 0);
+
+        // Epilogue
+        printf(".L.return.%s:\n", fn->name);
+        printf("  mov %%rbp, %%rsp\n");
+        printf("  pop %%rbp\n");
+        printf("  ret\n");
     }
-
-    printf(".L.return:\n");
-    printf("  mov %%rbp, %%rsp\n");
-    printf("  pop %%rbp\n");
-    printf("  ret\n");
-
 }
