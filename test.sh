@@ -108,11 +108,11 @@ assert 2 'int main() { int x=3, y=5; return y-x; }'
 assert 3 'int ret3() { return 3; } int main() { return ret3(); }'
 assert 5 'int ret5() { return 5; } int main() { return ret5(); }'
 
-#assert 8 'int add(int x, int y) { return x + y; } int main() { return add(3, 5); }'
-#assert 2 'int sub(int x, int y) { return x - y; } int main() { return sub(5, 3); }'
-#assert 21 'int add6(int a, int b, int c, int d, int e, int f) { return a+b+c+d+e+f; } int main() { return add6(1,2,3,4,5,6); }'
-#assert 66 'int add6(int a, int b, int c, int d, int e, int f) { return a+b+c+d+e+f; } int main() { return add6(1,2,add6(3,4,5,6,7,8),9,10,11); }'
-#assert 136 'int add6(int a, int b, int c, int d, int e, int f) { return a+b+c+d+e+f; }int main() { return add6(1,2,add6(3,add6(4,5,6,7,8,9),10,11,12,13),14,15,16); }'
+assert 8 'int add(int x, int y) { return x + y; } int main() { return add(3, 5); }'
+assert 2 'int sub(int x, int y) { return x - y; } int main() { return sub(5, 3); }'
+assert 21 'int add6(int a, int b, int c, int d, int e, int f) { return a+b+c+d+e+f; } int main() { return add6(1,2,3,4,5,6); }'
+assert 66 'int add6(int a, int b, int c, int d, int e, int f) { return a+b+c+d+e+f; } int main() { return add6(1,2,add6(3,4,5,6,7,8),9,10,11); }'
+assert 136 'int add6(int a, int b, int c, int d, int e, int f) { return a+b+c+d+e+f; }int main() { return add6(1,2,add6(3,add6(4,5,6,7,8,9),10,11,12,13),14,15,16); }'
 
 
 echo OK

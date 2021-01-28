@@ -188,10 +188,33 @@ static Type *declspec(Token **rest, Token *tok) {
     return ty_int;
 }
 
+// func-params = declspec "*"* ident ("," declspec "*"* ident)* ")"
+static void func_params(Token **rest, Token *tok) {
+    int i = 0;
+    while (!equal(tok, ")")) {
+        if (i != 0) {
+            consume(&tok, tok, ",");
+        }
+
+        Type *ty = declspec(&tok, tok);
+        while (consume(&tok, tok, "*")) {
+            ty = pointer_to(ty);
+        }
+        ty->name = tok;
+
+        new_lvar(get_ident(ty->name), ty);
+        tok = tok->next;
+        i++;
+    }
+
+    *rest = skip(tok, ")");
+}
+
 // type-suffix = ("(" func-params)?
 static Type *type_suffix(Token **rest, Token *tok, Type *ty) {
     if (equal(tok, "(")) {
-        *rest = skip(tok->next, ")");
+        func_params(rest, tok->next);
+        //*rest = skip(tok->next, ")");
         return func_type(ty);
     }
     *rest = tok;
@@ -501,10 +524,10 @@ static Node *primary(Token **rest, Token *tok) {
 }
 
 static Function *function(Token **rest, Token *tok) {
+    locals = NULL;
+
     Type *ty = declspec(&tok, tok);
     ty = declarator(&tok, tok, ty);
-
-    locals = NULL;
 
     Function *fn = calloc(1, sizeof(Function));
     fn->name = get_ident(ty->name);
