@@ -188,34 +188,29 @@ static Type *declspec(Token **rest, Token *tok) {
     return ty_int;
 }
 
-// func-params = declspec "*"* ident ("," declspec "*"* ident)* ")"
-static void func_params(Token **rest, Token *tok) {
-    int i = 0;
-    while (!equal(tok, ")")) {
-        if (i != 0) {
-            consume(&tok, tok, ",");
-        }
-
-        Type *ty = declspec(&tok, tok);
-        while (consume(&tok, tok, "*")) {
-            ty = pointer_to(ty);
-        }
-        ty->name = tok;
-
-        new_lvar(get_ident(ty->name), ty);
-        tok = tok->next;
-        i++;
-    }
-
-    *rest = skip(tok, ")");
-}
-
-// type-suffix = ("(" func-params)?
+// type-suffix = ("(" func-params? ")")?
+// func-params = param ("," param)*
+// param       = declspec declarator
 static Type *type_suffix(Token **rest, Token *tok, Type *ty) {
     if (equal(tok, "(")) {
-        func_params(rest, tok->next);
-        //*rest = skip(tok->next, ")");
-        return func_type(ty);
+        tok = tok->next;
+
+        Type head = {};
+        Type *cur = &head;
+
+        while (!equal(tok, ")")) {
+            if (cur != &head) {
+                tok = skip(tok, ",");
+            }
+            Type *basety = declspec(&tok, tok);
+            Type *ty = declarator(&tok, tok, basety);
+            cur = cur->next = copy_type(ty);
+        }
+
+        ty = func_type(ty);
+        ty->params = head.next;
+        *rest = tok->next;
+        return ty;
     }
     *rest = tok;
     return ty;
@@ -523,14 +518,24 @@ static Node *primary(Token **rest, Token *tok) {
     error_tok(tok, "expected an expression");
 }
 
-static Function *function(Token **rest, Token *tok) {
-    locals = NULL;
+static void create_param_lvars(Type *param) {
+    if (param) {
+        create_param_lvars(param->next);
+        new_lvar(get_ident(param->name), param);
+    }
+}
 
+static Function *function(Token **rest, Token *tok) {
     Type *ty = declspec(&tok, tok);
     ty = declarator(&tok, tok, ty);
 
+    locals = NULL;
+
     Function *fn = calloc(1, sizeof(Function));
     fn->name = get_ident(ty->name);
+    create_param_lvars(ty->params);
+    fn->params = locals;
+
     fn->body = block(rest, tok);
     fn->locals = locals;
     return fn;

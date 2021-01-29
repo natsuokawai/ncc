@@ -196,9 +196,8 @@ static void gen_stmt(Node *node) {
 }
 
 void codegen(Function *prog) {
-    assign_lvar_offsets(prog);
-
     for (Function *fn = prog; fn; fn = fn->next) {
+        assign_lvar_offsets(fn);
         printf("  .global main\n");
         printf("%s:\n", fn->name);
         current_fn = fn;
@@ -207,6 +206,12 @@ void codegen(Function *prog) {
         printf("  push %%rbp\n");
         printf("  mov %%rsp, %%rbp\n");
         printf("  sub $%d, %%rsp\n", fn->stack_size);
+
+        // Save passed-by-register arguments to the stack
+        int i = 0;
+        for (Obj *var = fn->params; var; var = var->next) {
+            printf("  mov %s, %d(%%rbp)\n", argreg[i++], var->offset);
+        }
 
         // Traverse the AST to emit assembly
         gen_stmt(fn->body);
