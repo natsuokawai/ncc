@@ -114,5 +114,10 @@ assert 21 'int add6(int a, int b, int c, int d, int e, int f) { return a+b+c+d+e
 assert 66 'int add6(int a, int b, int c, int d, int e, int f) { return a+b+c+d+e+f; } int main() { return add6(1,2,add6(3,4,5,6,7,8),9,10,11); }'
 assert 136 'int add6(int a, int b, int c, int d, int e, int f) { return a+b+c+d+e+f; }int main() { return add6(1,2,add6(3,add6(4,5,6,7,8,9),10,11,12,13),14,15,16); }'
 
+assert 3 'int main() { int x[2]; int *y=&x; *y=3; return *x; }'
+
+assert 3 'int main() { int x[3]; *x=3; *(x+1)=4; *(x+2)=5; return *x; }'
+assert 4 'int main() { int x[3]; *x=3; *(x+1)=4; *(x+2)=5; return *(x+1); }'
+assert 5 'int main() { int x[3]; *x=3; *(x+1)=4; *(x+2)=5; return *(x+2); }'
 
 echo OK
