@@ -221,7 +221,7 @@ static Type *type_suffix(Token **rest, Token *tok, Type *ty) {
     }
     if (equal(tok, "[")) {
         int sz = get_number(tok->next);
-        *rest - skip(tok->next->next, "]");
+        *rest = skip(tok->next->next, "]");
         return array_of(ty, sz);
     }
     *rest = tok;
