@@ -517,12 +517,23 @@ static Node *primary(Token **rest, Token *tok) {
         if (!var) {
             error_tok(tok, "undefined variable");
         }
+        Node *node = new_var_node(var, tok);
+        if (equal(tok->next, "[")) {
+            node = new_add(node, expr(&tok, tok->next->next), tok);
+            *rest = skip(tok, "]");
+            return new_unary(ND_DEREF, node, tok);
+        }
         *rest = tok->next;
-        return new_var_node(var, tok);
+        return node;
     }
 
     if (tok->kind == TK_NUM) {
         Node *node = new_num(tok->val, tok);
+        if (equal(tok->next, "[")) {
+            node = new_add(node, expr(&tok, tok->next->next), tok);
+            *rest = skip(tok, "]");
+            return new_unary(ND_DEREF, node, tok);
+        }
         *rest = tok->next;
         return node;
     }
