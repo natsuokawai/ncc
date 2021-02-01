@@ -219,11 +219,14 @@ static Type *type_suffix(Token **rest, Token *tok, Type *ty) {
         *rest = tok->next;
         return ty;
     }
+
     if (equal(tok, "[")) {
         int sz = get_number(tok->next);
-        *rest = skip(tok->next->next, "]");
+        tok = skip(tok->next->next, "]");
+        ty = type_suffix(rest, tok, ty);
         return array_of(ty, sz);
     }
+
     *rest = tok;
     return ty;
 }
