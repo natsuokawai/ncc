@@ -501,12 +501,19 @@ static Node *funcall(Token **rest, Token *tok) {
     return node;
 }
 
-// primary = "(" expr ")" | ident func-args? | num
+// primary = "(" expr ")" | ident func-args? | "sizeof" expr | num
 static Node *primary(Token **rest, Token *tok) {
     if (equal(tok, "(")) {
         Node *node = expr(&tok, tok->next);
         *rest = skip(tok, ")");
         return node;
+    }
+
+    if (equal(tok, "sizeof")) {
+        Node *node = expr(&tok, tok->next);
+        add_type(node);
+        *rest = tok;
+        return new_num(node->ty->size, tok);
     }
 
     if (tok->kind == TK_IDENT) {
