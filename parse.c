@@ -529,9 +529,15 @@ static Node *primary(Token **rest, Token *tok) {
         }
         Node *node = new_var_node(var, tok);
         if (equal(tok->next, "[")) {
-            node = new_add(node, expr(&tok, tok->next->next), tok);
-            *rest = skip(tok, "]");
-            return new_unary(ND_DEREF, node, tok);
+            tok = tok->next;
+            while (equal(tok, "[")) {
+                Token *start = tok;
+                Node *idx = expr(&tok, tok->next);
+                tok = skip(tok, "]");
+                node = new_unary(ND_DEREF, new_add(node, idx, start), start);
+            }
+            *rest = tok;
+            return node;
         }
         *rest = tok->next;
         return node;
