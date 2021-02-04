@@ -70,6 +70,7 @@ static Node *relation(Token **rest, Token *tok);
 static Node *add(Token **rest, Token *tok);
 static Node *mul(Token **rest, Token *tok);
 static Node *unary(Token **rest, Token *tok);
+static Node *postfix(Token **rest, Token *tok);
 static Node *primary(Token **rest, Token *tok);
 
 // stmt = expr-stmt | return-stmt | if-stmt | for-stmt | while-stmt | block
@@ -460,7 +461,7 @@ static Node *mul(Token **rest, Token *tok) {
     }
 }
 
-// unary = ("+" | "-" | "&" | "*") unary | primay
+// unary = ("+" | "-" | "&" | "*") unary | postfix
 static Node *unary(Token **rest, Token *tok) {
     if (equal(tok, "+")) {
         return unary(rest, tok->next);
@@ -475,7 +476,21 @@ static Node *unary(Token **rest, Token *tok) {
         return new_unary(ND_DEREF, unary(rest, tok->next), tok);
     }
 
-    return primary(rest, tok);
+    return postfix(rest, tok);
+}
+
+// postfix = primary ("[" expr "]")*
+static Node *postfix(Token **rest, Token *tok) {
+    Node *node = primary(&tok, tok);
+
+    while (equal(tok, "[")) {
+        Token *start = tok;
+        Node *idx = expr(&tok, tok->next);
+        tok = skip(tok, "]");
+        node = new_unary(ND_DEREF, new_add(node, idx, start), start);
+    }
+    *rest = tok;
+    return node;
 }
 
 // funcall = ident "(" (assign ("," assign)*)? ")"
@@ -528,28 +543,12 @@ static Node *primary(Token **rest, Token *tok) {
             error_tok(tok, "undefined variable");
         }
         Node *node = new_var_node(var, tok);
-        if (equal(tok->next, "[")) {
-            tok = tok->next;
-            while (equal(tok, "[")) {
-                Token *start = tok;
-                Node *idx = expr(&tok, tok->next);
-                tok = skip(tok, "]");
-                node = new_unary(ND_DEREF, new_add(node, idx, start), start);
-            }
-            *rest = tok;
-            return node;
-        }
         *rest = tok->next;
         return node;
     }
 
     if (tok->kind == TK_NUM) {
         Node *node = new_num(tok->val, tok);
-        if (equal(tok->next, "[")) {
-            node = new_add(node, expr(&tok, tok->next->next), tok);
-            *rest = skip(tok, "]");
-            return new_unary(ND_DEREF, node, tok);
-        }
         *rest = tok->next;
         return node;
     }
