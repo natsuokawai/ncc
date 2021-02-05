@@ -30,6 +30,7 @@ static Node *new_var_node(Obj *var, Token *tok) {
 
 static Obj *new_lvar(char *name, Type *ty) {
     Obj *var = calloc(1, sizeof(Obj));
+    var->is_local = true;
     var->ty = ty;
     var->name = name;
     var->next = locals;
@@ -45,7 +46,7 @@ static Node *new_num(int val, Token *tok) {
 
 Obj *find_var(Token *tok) {
     for (Obj *var = locals; var; var = var->next) {
-        if (strlen(var->name) == tok->len && !strncmp(var->name, tok->loc, tok->len)) {
+        if (var->is_local && strlen(var->name) == tok->len && !strncmp(var->name, tok->loc, tok->len)) {
             return var;
         }
     }
@@ -563,13 +564,14 @@ static void create_param_lvars(Type *param) {
     }
 }
 
-static Function *function(Token **rest, Token *tok) {
+static Obj *function(Token **rest, Token *tok) {
     Type *ty = declspec(&tok, tok);
     ty = declarator(&tok, tok, ty);
 
     locals = NULL;
 
-    Function *fn = calloc(1, sizeof(Function));
+    Obj *fn = calloc(1, sizeof(Obj));
+    fn->is_function = true;
     fn->name = get_ident(ty->name);
     create_param_lvars(ty->params);
     fn->params = locals;
@@ -579,9 +581,9 @@ static Function *function(Token **rest, Token *tok) {
     return fn;
 }
 
-Function *parse(Token *tok) {
-    Function head = {};
-    Function *cur = &head;
+Obj *parse(Token *tok) {
+    Obj head = {};
+    Obj *cur = &head;
 
     while (tok->kind != TK_EOF) {
         cur = cur->next = function(&tok, tok);

@@ -46,14 +46,7 @@ Token *tokenize(char *input);
 // parse.c
 //
 
-// Local variable
 typedef struct Obj Obj;
-struct Obj {
-    Obj *next;
-    Type *ty;   // Variable type
-    char *name; // Variable name
-    int offset; // Offset from RBP
-};
 
 // AST node
 typedef enum {
@@ -107,19 +100,27 @@ struct Node {
     int val;        // Used if kind == ND_NUM
 };
 
-// Function
-typedef struct Function Function;
-struct Function {
-    Function *next;
-    char *name;
-    Obj *params;
+// Local variable or global varable/function
+struct Obj {
+    Obj *next;
+    char *name;    // Variable name
+    Type *ty;      // Variable type
+    bool is_local; // local or global/function
 
+    // Local variable
+    int offset;
+
+    // Global variable
+    bool is_function;
+
+    // Function
+    Obj *params;
     Node *body;
     Obj *locals;
     int stack_size;
 };
 
-Function *parse(Token *tok);
+Obj *parse(Token *tok);
 
 //
 // type.c
@@ -157,4 +158,4 @@ void add_type(Node *node);
 // codegen.c
 //
 
-void codegen(Function *prog);
+void codegen(Obj *prog);

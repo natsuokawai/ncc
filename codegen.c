@@ -2,7 +2,7 @@
 
 static int depth;
 static char *argreg[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
-static Function *current_fn;
+static Obj *current_fn;
 
 static void gen_expr(Node *node);
 
@@ -37,9 +37,13 @@ static void gen_addr(Node *node) {
 }
 
 // Align offsets to local variables
-static void assign_lvar_offsets(Function *prog) {
-    int offset = 0;
-    for (Function *fn = prog; fn; fn = fn->next) {
+static void assign_lvar_offsets(Obj *prog) {
+    for (Obj *fn = prog; fn; fn = fn->next) {
+        if (!fn->is_function) {
+            continue;
+        }
+
+        int offset = 0;
         for (Obj *var = fn->locals; var; var = var->next) {
             offset += var->ty->size;
             var->offset = -offset;
@@ -207,8 +211,12 @@ static void gen_stmt(Node *node) {
     error_tok(node->tok, "invalid statement");
 }
 
-void codegen(Function *prog) {
-    for (Function *fn = prog; fn; fn = fn->next) {
+void codegen(Obj *prog) {
+    for (Obj *fn = prog; fn; fn = fn->next) {
+        if (!fn->is_function) {
+            continue;
+        }
+
         assign_lvar_offsets(fn);
         printf("  .global main\n");
         printf("%s:\n", fn->name);
