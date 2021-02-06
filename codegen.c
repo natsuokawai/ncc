@@ -214,6 +214,8 @@ static void gen_stmt(Node *node) {
 void codegen(Obj *prog) {
     for (Obj *fn = prog; fn; fn = fn->next) {
         if (!fn->is_function) {
+            printf("%s:\n", fn->name);
+            printf("  .zero %d\n", fn->ty->size);
             continue;
         }
 

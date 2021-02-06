@@ -571,13 +571,19 @@ static Obj *function(Token **rest, Token *tok) {
     locals = NULL;
 
     Obj *fn = calloc(1, sizeof(Obj));
-    fn->is_function = true;
     fn->name = get_ident(ty->name);
-    create_param_lvars(ty->params);
-    fn->params = locals;
 
-    fn->body = block(rest, tok);
-    fn->locals = locals;
+    if (equal(tok, "{")) {
+        fn->is_function = true;
+        create_param_lvars(ty->params);
+        fn->params = locals;
+
+        fn->body = block(rest, tok);
+        fn->locals = locals;
+    }
+
+    fn->ty = ty;
+    *rest = skip(tok, ";");
     return fn;
 }
 
