@@ -1,6 +1,7 @@
 #include "ncc.h"
 
 Obj *locals;
+Obj *globals;
 
 static Node *new_node(NodeKind kind, Token *tok) {
     Node *node = calloc(1, sizeof(Node));
@@ -28,13 +29,25 @@ static Node *new_var_node(Obj *var, Token *tok) {
     return node;
 }
 
-static Obj *new_lvar(char *name, Type *ty) {
+static Obj *new_var(char *name, Type *ty) {
     Obj *var = calloc(1, sizeof(Obj));
-    var->is_local = true;
-    var->ty = ty;
     var->name = name;
+    var->ty = ty;
+    return var;
+}
+
+static Obj *new_lvar(char *name, Type *ty) {
+    Obj *var = new_var(name, ty);
+    var->is_local = true;
     var->next = locals;
     locals = var;
+    return var;
+}
+
+static Obj *new_gvar(char *name, Type *ty) {
+    Obj *var = new_var(name, ty);
+    var->next = globals;
+    globals = var;
     return var;
 }
 
@@ -47,6 +60,12 @@ static Node *new_num(int val, Token *tok) {
 Obj *find_var(Token *tok) {
     for (Obj *var = locals; var; var = var->next) {
         if (var->is_local && strlen(var->name) == tok->len && !strncmp(var->name, tok->loc, tok->len)) {
+            return var;
+        }
+    }
+
+    for (Obj *var = globals; var; var = var->next) {
+        if (strlen(var->name) == tok->len && !strncmp(var->name, tok->loc, tok->len)) {
             return var;
         }
     }
@@ -564,35 +583,60 @@ static void create_param_lvars(Type *param) {
     }
 }
 
-static Obj *function(Token **rest, Token *tok) {
-    Type *ty = declspec(&tok, tok);
+static Token *function(Token *tok, Type *ty) {
     ty = declarator(&tok, tok, ty);
 
+    Obj *fn = new_gvar(get_ident(ty->name), ty);
+    fn->is_function = true;
+
     locals = NULL;
+    create_param_lvars(ty->params);
+    fn->params = locals;
 
-    Obj *fn = calloc(1, sizeof(Obj));
-    fn->name = get_ident(ty->name);
+    fn->body = block(&tok, tok);
+    fn->locals = locals;
+    return tok;
+}
 
-    if (equal(tok, "{")) {
-        fn->is_function = true;
-        create_param_lvars(ty->params);
-        fn->params = locals;
+static Token *global_variable(Token *tok, Type *basety) {
+    bool first = true;
 
-        fn->body = block(rest, tok);
-        fn->locals = locals;
+    while (!consume(&tok, tok, ";")) {
+        if (!first) {
+            tok = skip(tok, ",");
+        }
+        first = false;
+
+        Type *ty = declarator(&tok, tok, basety);
+        new_gvar(get_ident(ty->name), ty);
     }
 
-    fn->ty = ty;
-    *rest = skip(tok, ";");
-    return fn;
+    return tok;
+}
+
+static bool is_function(Token *tok) {
+    if (equal(tok, ";")) {
+        return false;
+    }
+
+    Type dummy = {};
+    Type *ty = declarator(&tok, tok, &dummy);
+    return ty->kind == TY_FUNC;
 }
 
 Obj *parse(Token *tok) {
-    Obj head = {};
-    Obj *cur = &head;
+    globals = NULL;
 
     while (tok->kind != TK_EOF) {
-        cur = cur->next = function(&tok, tok);
+        Type *basety = declspec(&tok, tok);
+
+        if (is_function(tok)) {
+            tok = function(tok, basety);
+            continue;
+        }
+
+        tok = global_variable(tok, basety);
     }
-    return head.next;
+
+    return globals;
 }
