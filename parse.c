@@ -212,6 +212,10 @@ static int get_number(Token *tok) {
 
 // declspec = "int"
 static Type *declspec(Token **rest, Token *tok) {
+    if (equal(tok, "char")) {
+        *rest = tok->next;
+        return ty_char;
+    }
     *rest = skip(tok, "int");
     return ty_int;
 }
@@ -306,7 +310,7 @@ static Node *block(Token **rest, Token *tok) {
     Node *body = &head;
 
     while (!equal(tok, "}")) {
-        if (equal(tok, "int")) {
+        if (equal(tok, "int") || equal(tok, "char")) {
             body = body->next = declaration(&tok, tok);
         } else {
             body = body->next = stmt(&tok, tok);
