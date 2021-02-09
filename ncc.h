@@ -19,6 +19,7 @@ typedef enum {
     TK_PUNCT,   // Punctuators
     TK_KEYWORD, // Keywords: return, if, for...
     TK_NUM,     // Numeric literals
+    TK_STRING,  // String literals
     TK_EOF,     // End-of-file markers
 } TokenKind;
 

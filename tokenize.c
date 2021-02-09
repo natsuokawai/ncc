@@ -130,6 +130,16 @@ Token *tokenize(char *input) {
             continue;
         }
 
+        // String
+        if (*p == '"') {
+            char *start = ++p;
+            do {
+                p++;
+            } while (*p != '"');
+            cur = cur->next = new_token(TK_STRING, start, p++);
+            continue;
+        }
+
         // Identifier
         if (isalpha(*p) || *p == '_') {
             char *start = p;
