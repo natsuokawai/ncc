@@ -19,7 +19,7 @@ typedef enum {
     TK_PUNCT,   // Punctuators
     TK_KEYWORD, // Keywords: return, if, for...
     TK_NUM,     // Numeric literals
-    TK_STRING,  // String literals
+    TK_STR,     // String literals
     TK_EOF,     // End-of-file markers
 } TokenKind;
 
@@ -31,6 +31,8 @@ struct Token {
     int val;        // If kind is TK_NUM, its value
     char *loc;      // Token location
     int len;        // Token length
+    Type *ty;
+    char *str;
 };
 
 void error(char *fmt, ...);
@@ -113,6 +115,9 @@ struct Obj {
 
     // Global variable
     bool is_function;
+
+    // Global variable
+    char *init_data;
 
     // Function
     Obj *params;
