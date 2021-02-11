@@ -167,3 +167,10 @@ void add_type(Node *node);
 //
 
 void codegen(Obj *prog);
+
+
+//
+// strings.c
+//
+
+char *format(char *fmt, ...);
