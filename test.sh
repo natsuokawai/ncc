@@ -13,7 +13,7 @@ assert() {
   expected="$1"
   input="$2"
 
-  ./ncc "$input" > tmp.s
+  echo "$input" | ./ncc - > tmp.s || exit
   #gcc -static -o tmp tmp.s tmp2.o
   gcc -o tmp tmp.s
   ./tmp

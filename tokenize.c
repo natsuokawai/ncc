@@ -1,5 +1,8 @@
 #include "ncc.h"
 
+// Input filename
+static char *current_filename;
+
 // Input string
 static char *current_input;
 
@@ -190,9 +193,9 @@ static void convert_keywords(Token *tok) {
     }
 }
 
-Token *tokenize(char *input) {
-   current_input = input;
-   char *p = current_input;
+static Token *tokenize(char *filename, char *p) {
+    current_filename = filename;
+   current_input = p;
    Token head = {};
    Token *cur = &head;
 
@@ -283,4 +286,8 @@ static char *read_file(char *path) {
     }
     fclose(out);
     return buf;
+}
+
+Token *tokenize_file(char *path) {
+    return tokenize(path, read_file(path));
 }

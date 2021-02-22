@@ -43,7 +43,7 @@ bool equal(Token *tok, char *op);
 Token *skip(Token *tok, char *s);
 bool consume(Token **rest, Token *tok, char *str);
 Token *new_token(TokenKind kind, char *start, char *end);
-Token *tokenize(char *input);
+Token *tokenize_file(char *filename);
 
 
 //
