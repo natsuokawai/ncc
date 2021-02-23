@@ -1,4 +1,5 @@
 #include "ncc.h"
+#include <stdio.h>
 
 // Input filename
 static char *current_filename;
@@ -17,8 +18,24 @@ void error(char *fmt, ...) {
 
 // Reports an error location and exit
 static void verror_at(char *loc, char *fmt, va_list ap) {
-    int pos = loc - current_input;
-    fprintf(stderr, "%s\n", current_input);
+    // `line` is pointer to the beginning character of the line
+    char *line = loc;
+    while (current_input < line && line[-1] != '\n') {
+        line--;
+    }
+    char *end = loc;
+    while (*end != '\n') {
+        end++;
+    }
+    int line_no = 1;
+    for (char *p = current_input; p < line; p++) {
+        if (*p == '\n') {
+            line_no++;
+        }
+    }
+    int ident = fprintf(stderr, "%s:%d: ", current_filename, line_no);
+    fprintf(stderr, "%.*s\n", (int)(end - line), line);
+    int pos = loc - line + ident;
     fprintf(stderr, "%*s", pos, "");
     fprintf(stderr, "^ ");
     vfprintf(stderr, fmt, ap);
